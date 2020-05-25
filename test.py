@@ -1,6 +1,13 @@
 import os
 import glob
 import time
+
+from guizero import App, Text
+
+
+
+
+app.display()
 #initialize the device
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
@@ -39,3 +46,8 @@ while True:
     else:
         print(read_temp())
     time.sleep(1)
+
+app = App(title="Hello world")
+welcome_message = Text(app, text=read_temp(), size=40)
+
+app.display()
