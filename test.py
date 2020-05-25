@@ -37,16 +37,18 @@ def read_temp():
         temp_c = float(temp_string) / 1000.0
         return temp_c
 
-def updateTempText():
+def updateText():
     text.set(read_temp())
-    text.after(1000, updateTempText)
+    timeTitle.set(time.ctime())
+    text.after(1000, updateText)
+
     
 
 if __name__ =='__main__':
-    timeTitle = Text(app, time.ctime(), grid=[0,0], size=20)
+    timeTitle = Text(app, "Loading...", grid=[0,0], size=20)
     title = Text(app, "Furnace Temperature", grid=[0,1], size=20)
     text = Text(app, "Loading...", grid=[0,2], size=20)
-    text.after(1000, updateTempText)
+    updateText()
 
     app.display()
 
