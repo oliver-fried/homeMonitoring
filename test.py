@@ -1,13 +1,11 @@
 import os
 import glob
 import time
-
 from guizero import App, Text
 
+app = App(title="Temperature Monitor", layout='grid')
 
 
-
-app.display()
 #initialize the device
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
@@ -39,15 +37,17 @@ def read_temp():
         temp_c = float(temp_string) / 1000.0
         return temp_c
 
-while True:
-    read_temp()
-    if read_temp()> maxTemp:
-        print("above 23")
-    else:
-        print(read_temp())
-    time.sleep(1)
+def updateTempText():
+    text.set(read_temp())
+    text.after(1000, updateTempText)
+    
 
-app = App(title="Hello world")
-welcome_message = Text(app, text=read_temp(), size=40)
+if __name__ =='__main__':
+    timeTitle = Text(app, time.ctime(), grid=[0,0], size=20)
+    title = Text(app, "Furnace Temperature", grid=[0,1], size=20)
+    text = Text(app, "Loading...", grid=[0,2], size=20)
+    text.after(1000, updateTempText)
 
-app.display()
+    app.display()
+
+
