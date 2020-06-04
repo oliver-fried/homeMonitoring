@@ -1,12 +1,12 @@
+#!/usr/bin/env python
+
 import os
 import glob
 import time
-import RPi.GPIO as GPIO           # import RPi.GPIO module  
-GPIO.setmode(GPIO.BCM)            # choose BCM or BOARD 
-GPIO.setup(24, GPIO.OUT) # set a port/pin as an output   
+import RPi.GPIO as GPIO
 
-
-
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(18, GPIO.OUT) 
 #initialize the device
 os.system('modprobe w1-gpio')
 os.system('modprobe w1-therm')
@@ -15,7 +15,7 @@ base_dir = '/sys/bus/w1/devices/'
 print(base_dir)
 
 maxTemp = 65
-maxSlope = 20
+maxSlope = 10
 
 thermOneFolder = glob.glob(base_dir + '28*')[0]
 deviceOne_file = thermOneFolder + '/w1_slave'
@@ -40,24 +40,29 @@ def read_thermOnetemp():
         return thermOnetemp_c
 
 
-def updateText():
-    thermOneTemp.set(read_thermOnetemp())
-    thermTwoTemp.set(read_thermTwotemp())
-    timeTitle.set(time.ctime())
-    text.after(1000, updateText)
+
 
 
 def alarmTrigger(lastTemp):
     read_thermOnetemp_raw()
-    read_thermOnetemp()
-    if thermOnetemp_c >= maxTemp:
-        if abs((thermOnetemp_c - lastTemp)/5) >= maxSlope:
+    
+    if read_thermOnetemp() >= maxTemp:
+        if abs((read_thermOnetemp() - lastTemp)/1) >= maxSlope:
+            print("Extraneous temp, disregard")
             alarmTrigger(lastTemp)
+            
         else:
-            GPIO.output(24, 1)
+            while True:
+                GPIO.output(18, 1)
+                print("TOO HOT!")
     else:
-        GPIO.output(24, 0)
-        alarmTrigger(thermOnetemp_c)
+        GPIO.output(18, 0)
+        print("Safe Temperature")
+        time.sleep(1)
+        alarmTrigger(read_thermOnetemp())
+        
 
 
-alarmTrigger(22)
+alarmTrigger(23)
+
+GPIO.cleanup()
