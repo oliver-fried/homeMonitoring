@@ -17,21 +17,15 @@
 <body>
 <?php
 
-$conn = new mysqli('localhost', "oliverpi", 'revilo', 'homeMonitoringStatus');
-if ($conn->connect_error) {
-  die("Error connecting to MySQL DB");
-} 
+$pythonScriptLocations = ('/oliver/scr/homeMonitoring');
 
-$query = mysqli_query($conn, "SELECT TOP 1 FROM HouseSensors");
-//$result = $query->fetch_all(MYSQLI_ASSOC);
-//echo $result;
-//print_r($result);
+$plenumTemp = shell_exec('/usr/local/bin/python3 /usr' .$pythonScriptLocations. '/plenumTemp.py');
+$systemStatus = "Armed";
+$furnaceFanStatus = 'on';
+$upstairsTemp= '100';
+$garageStatus = 'open';
+$frontDoorStatus = 'closed';
 
-//$maxPlenumTemp= $result[0]['VariableValue'];
-//$systemStatus = $result[1]['VariableValue'];
-//$furnaceFanStatus = $result[2]['VariableValue'];
-//$maxHouseTemp= $result[3]['VariableValue'];
-//$airIntakeStatus = $result[4]['VariableValue'];
 
 
 
@@ -60,7 +54,7 @@ $query = mysqli_query($conn, "SELECT TOP 1 FROM HouseSensors");
   <div class="card-body">
       <h3 class="card-title text-success">
         <?php
-        echo Armed
+        echo $systemStatus;
         ?>
       </h3>
       <p class="card-text">
@@ -72,16 +66,26 @@ $query = mysqli_query($conn, "SELECT TOP 1 FROM HouseSensors");
   <div class="card-header">Test System</div>
     <div class="card-body">
       <p class="card-text">
-      <button type="button" class="btn btn-danger btn-lg btn-block">Activate Siren</button>
+      <button type="button" class="btn btn-danger btn-lg btn-block">Activate Siren<?php echo shell_exec('python Users/oliver/scr/homeMonitoring/activateSiren.py') ?></button>
       </p>
     </div>
   </div>
   <div class="card text-white bg-dark mb-3 mt-4">
   <div class="card-header">Temperature Monitor</div>
   <div class="card-body">
-      <h1 class="card-title text-warning">704.6 F</h1>
+      <h1 class="card-title text-warning">
+      <?php
+        echo $plenumTemp;
+        echo " F";
+        ?>
+      </h1>
       <p class="card-text">Furnace Temperature</p>
-      <h1 class="card-title text-primary">71.2 F</h1>
+      <h1 class="card-title text-primary">
+      <?php
+        echo $upstairsTemp;
+        echo " F";
+        ?>
+      </h1>
       <p class="card-text">House Temperature</p>
 
     </div>
@@ -99,7 +103,19 @@ $query = mysqli_query($conn, "SELECT TOP 1 FROM HouseSensors");
   <div class="card text-white bg-dark mt-4 mb-0 ">
   <div class="card-header">Furnace Fan Status</div>
     <div class="card-body">
-      <h3 class="card-title text-success">On</h3>
+      <?php
+        if ($furnaceFanStatus == 1) {
+          echo "<h3 class=text-danger>"."Open"."</h3>";
+        }
+
+        else if ($furnaceFanStatus == 0) {
+          echo "<h3 class=text-success>"."Closed"."</h3>";
+        }
+
+        else{
+          echo "<h3 class=text-warning>"."Error reading garage Status"."</h3>";
+        }
+        ?>
       
     </div>
   </div>
@@ -110,14 +126,42 @@ $query = mysqli_query($conn, "SELECT TOP 1 FROM HouseSensors");
     <div class="card-body">
       <h5>
         Garage Door Status</h5>
-        <h3 class="text-danger">Open</h3>
+        
+        <?php
+        if ($garageStatus == 1) {
+          echo "<h3 class=text-danger>"."Open"."</h3>";
+        }
+
+        else if ($garageStatus == 0) {
+          echo "<h3 class=text-success>"."Closed"."</h3>";
+        }
+
+        else{
+          echo "<h3 class=text-warning>"."Error reading garage Status"."</h3>";
+        }
+        ?>
         
       <p class="card-text">
       </p>
       <h5>
         Front Door
         </h5>
-        <h3 class="text-success">Closed and locked</h3>
+        <h3 class="text-success">
+        <?php
+        if ($frontDoorStatus == 1) {
+          echo "<h3 class=text-danger>"."Unlocked"."</h3>";
+        }
+
+        else if ($frontDoorStatus == 0) {
+          echo "<h3 class=text-success>"."Locked"."</h3>";
+        }
+
+        else{
+          echo "<h3 class=text-warning>"."Error reading front door Status"."</h3>";
+        }
+        ?>
+
+        </h3>
         <div class="input-group mb-3">
         
     </div>
