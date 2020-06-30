@@ -16,15 +16,22 @@
 
 <body>
 <?php
+$pythonScriptLocations = ('/home/pi/src/homeMonitoring/');
 
-$pythonScriptLocations = ('/oliver/scr/homeMonitoring');
+$plenumTemp = shell_exec(escapeshellcmd('python3 '.$pythonScriptLocations.'plenumTemp.py'));
+$systemStatus = "not working";
+$furnaceFanStatus = '0';
+if(shell_exec(escapeshellcmd('gpio read 15')) == 1){
+  $airIntakeStatus = "Closed";
+}
+else {
+  $airIntakeStatus = "Open";
+};
+ 
 
-$plenumTemp = shell_exec('/usr/local/bin/python3 /usr' .$pythonScriptLocations. '/plenumTemp.py');
-$systemStatus = "Armed";
-$furnaceFanStatus = 'on';
-$upstairsTemp= '100';
-$garageStatus = 'open';
-$frontDoorStatus = 'closed';
+$houseTemp= shell_exec(escapeshellcmd('python3 '.$pythonScriptLocations.'houseTemp.py'));
+$garageStatus = "not working";
+$frontDoorStatus = 'not working';
 
 
 
@@ -66,7 +73,15 @@ $frontDoorStatus = 'closed';
   <div class="card-header">Test System</div>
     <div class="card-body">
       <p class="card-text">
-      <button type="button" class="btn btn-danger btn-lg btn-block">Activate Siren<?php echo shell_exec('python Users/oliver/scr/homeMonitoring/activateSiren.py') ?></button>
+      <form name="update" method="get" >
+      <Button name = "update" type="submit" class="btn btn-primary btn-lg btn-block">Activate Alarm</Button>
+      </form>
+      <?php
+      if (isset($_GET['update']))
+      {
+        shell_exec(escapeshellcmd('python3 '.$pythonScriptLocations.'activateAlarm.py'));
+      }
+      ?>
       </p>
     </div>
   </div>
@@ -82,7 +97,7 @@ $frontDoorStatus = 'closed';
       <p class="card-text">Furnace Temperature</p>
       <h1 class="card-title text-primary">
       <?php
-        echo $upstairsTemp;
+        echo $houseTemp;
         echo " F";
         ?>
       </h1>
@@ -93,9 +108,17 @@ $frontDoorStatus = 'closed';
   <div class="card text-white bg-dark mb-3 mt-x">
   <div class="card-header">Air Intake Status</div>
     <div class="card-body">
-      <h3 class="card-title">40% open</h3>
+      <h3 class="card-title"><?php echo $airIntakeStatus ?></h3>
       <p class="card-text">
-      <button type="button" class="btn btn-primary btn-lg btn-block">Close air intake</button>
+      <form name="controlAirIntake" method="get" >
+        <Button name = "controlAirIntake" type="submit" class="btn btn-primary btn-lg btn-block">Toggle Air Intake Position</Button>
+      </form>
+      <?php
+      if (isset($_GET['controlAirIntake']))
+      {
+        shell_exec(escapeshellcmd("gpio write 15 1"));
+      }
+      ?>
       </p>
     </div>
   </div>

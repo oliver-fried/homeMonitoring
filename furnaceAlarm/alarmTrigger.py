@@ -9,6 +9,7 @@ import glob
 import time
 import RPi.GPIO as GPIO
 import json
+import smtplib
 
 #getting data from JSON file
 with open('parameters.json') as f:
@@ -16,7 +17,7 @@ with open('parameters.json') as f:
 
 #setting up GPIO outputs
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(18, GPIO.OUT)
+GPIO.setup(data["alarmPin"], GPIO.OUT)
 
 #initialize the device
 os.system('modprobe w1-gpio')
@@ -57,6 +58,17 @@ def read_thermOnetemp():
         return thermOnetemp_c
 
 
+#setting up email sending
+sender_email ='greenridgehomemonitoring@gmail.com'
+rec_email = data['receivingEmail']
+password = '1426Greenridge'
+message = "Plenum is too hot!"
+server = smtplib.SMTP('smtp.gmail.com', 587)
+server.starttls()
+server.login(sender_email, password)
+
+
+
 
 #main function
 def alarmTrigger(lastTemp):
@@ -71,13 +83,14 @@ def alarmTrigger(lastTemp):
 
         #otherwise, RING THE ALARM!!!    
         else:
+            server.sendmail(sender_email,rec_email, message)
             while True:
-                GPIO.output(18, 1)
+                GPIO.output(data['alarmPin'], 1)
                 print("TOO HOT!")
 
     #if the temp isnt too high, wait a second and go get a new temp           
     else:
-        GPIO.output(18, 0)
+        GPIO.output(data['alarmPin'], 0)
         print("Safe Temperature")
         time.sleep(secondsBeforeUpdatingRate)
         alarmTrigger(read_thermOnetemp())

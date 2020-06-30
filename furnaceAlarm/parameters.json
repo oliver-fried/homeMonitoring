@@ -2,6 +2,8 @@
     "maxTempC": 65,
     "maxSlopeC": 10,
     "furnaceThermometerSerialNumber": "28-01191e0e8f08",
-    "secondsBeforeUpdatingRate": 1
+    "secondsBeforeUpdatingRate": 1,
+    "alarmPin": 18,
+    "receivingEmail":"oliverfried3@gmail.com"
 
 }
