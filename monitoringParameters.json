@@ -1,0 +1,12 @@
+{
+    "maxTempC": 65,
+    "maxSlopeC": 10,
+    "furnaceThermometerSerialNumber": "28-01191e0e8f08",
+    "houseThermometerSerialNumber": "28-01191e750083",
+    "alarmPin": 18,
+    "airIntakePin": 22,
+    "airIntakePinHighTimeInSeconds": 3,
+    "airIntakeStatusPin": 15,
+    "receivingEmail":"oliverfried3@gmail.com"
+
+}
