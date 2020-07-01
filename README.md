@@ -63,5 +63,9 @@ All I'm trying to do here is get the pin value corresponding to the air intake s
 
 10. Do the exact same for houseTemp.py. Go to line 15 and make the necessary changes to the path.
 
-11. Now go to 
+11. Now go to the furnace alarm folder. this should be in your homeMonitoring folder. Open up 'parameters.json' and change the parameters like you did for the other json file earlier. This means: make sure the serial number correspondes to your furnace serial number. Make sure the alarm pin is correct. Make sure the email is correct. Make sure the max temp and slope are correct. 
+
+12. I want to be clear here. The 'alarmTrigger.py' file should work. This means that I would suggest that you attach a furnace thermometer and siren to your RP  and then go to your command prompt on your RP and cd to the furnaceAlarm folder, and then type 'python alarmTrigger.py'. This should start a program that will continuously check if your plenum is too hot and then set off an alarm if it is, as well as sending you an email. This seem like it could be very useful.
+
+13. That is it for now. I have to go do some other work before I leave for The Academy in about 3 hours. I really hope this makes some sense, and I feel bad because I didnt get too much done. I want to get it to work for you, so when i have some free time this fall i want to see if i can work on it. Alright thats it for now. Oliver over and out. 
     
