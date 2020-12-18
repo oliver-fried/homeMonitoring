@@ -11,7 +11,7 @@ import json
 import time
 
 #getting data from JSON file
-with open('/home/pi/src/homeMonitoring/monitoringParameters.json') as f:
+with open('monitoringParameters.json') as f:
     data = json.load(f)
 
 #initialize the device

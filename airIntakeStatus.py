@@ -4,9 +4,9 @@ import time
 import smtplib
 import json
 
-def prelimFunctions():
+def mainFunctions():
     #getting data from JSON file
-    with open('/home/pi/src/homeMonitoring/monitoringParameters.json') as f:
+    with open('monitoringParameters.json') as f:
         data = json.load(f)
 
     airIntakeStatusPin = data['airIntakeStatusPin']
@@ -18,12 +18,8 @@ def prelimFunctions():
 
     status = GPIO.input(airIntakeStatusPin)
     GPIO.cleanup()
-    return status
+    return status            
 
-def runProgram(statusVar):
-    if statusVar == 1:
-        print("Closed")  
-    else:
-        print("Open")
+mainFunctions()
 
 

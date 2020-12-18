@@ -10,9 +10,10 @@ import time
 import RPi.GPIO as GPIO
 import json
 import smtplib
+from datetime import datetime
 
 #getting data from JSON file
-with open('parameters.json') as f:
+with open('monitoringParameters.json') as f:
     data = json.load(f)
 
 #setting up GPIO outputs
@@ -94,6 +95,9 @@ def alarmTrigger(lastTemp):
         print("Safe Temperature")
         time.sleep(secondsBeforeUpdatingRate)
         alarmTrigger(read_thermOnetemp())
+
+
+
         
 
 #un the main program

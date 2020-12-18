@@ -21,15 +21,16 @@ $pythonScriptLocations = ('/home/pi/src/homeMonitoring/');
 $plenumTemp = shell_exec(escapeshellcmd('python3 '.$pythonScriptLocations.'plenumTemp.py'));
 $systemStatus = "not working";
 $furnaceFanStatus = '0';
-if(shell_exec(escapeshellcmd('gpio read 15')) == 1){
-  $airIntakeStatus = "Closed";
-}
-else {
-  $airIntakeStatus = "Open";
-};
- 
 
-$houseTemp= shell_exec(escapeshellcmd('python3 '.$pythonScriptLocations.'houseTemp.py'));
+if (shell_exec(escapeshellcmd('python3 '.$pythonScriptLocations.'airIntakeStatus.py')) == 1) {
+  $airIntakeStatus == "Closed";
+}
+
+else {
+  $airIntakeStatus == "Open";
+}
+
+$houseTemp = shell_exec(escapeshellcmd('python3 '.$pythonScriptLocations.'houseTemp.py'));
 $garageStatus = "not working";
 $frontDoorStatus = 'not working';
 
@@ -116,7 +117,7 @@ $frontDoorStatus = 'not working';
       <?php
       if (isset($_GET['controlAirIntake']))
       {
-        shell_exec(escapeshellcmd("gpio write 15 1"));
+        shell_exec(escapeshellcmd('python3 '.$pythonScriptLocations.'airIntakeControl.py'));
       }
       ?>
       </p>

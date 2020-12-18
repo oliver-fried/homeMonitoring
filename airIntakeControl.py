@@ -20,7 +20,7 @@ def airIntakeControl():
     
     GPIO.output(airIntakePin, 1)
     time.sleep(data["airIntakePinHighTimeInSeconds"])
-    GPIO.output(airIntakePin,0)
+    GPIO.output(airIntakePin, 0)
 
 
 

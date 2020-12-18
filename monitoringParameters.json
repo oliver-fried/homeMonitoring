@@ -1,4 +1,5 @@
 {
+    "comment1":"these pin numbers use the BOARD configuration. Use the 'pinout' command on your RP to see the configuration. The pin numbers are grey and enclosed by parentheses.",
     "maxTempC": 65,
     "maxSlopeC": 10,
     "furnaceThermometerSerialNumber": "28-01191e0e8f08",
@@ -7,6 +8,12 @@
     "airIntakePin": 22,
     "airIntakePinHighTimeInSeconds": 3,
     "airIntakeStatusPin": 15,
-    "receivingEmail":"oliverfried3@gmail.com"
+    "receivingEmail":"oliverfried3@gmail.com",
+    "fireMonitorAlarmTimeInSeconds": 600,
+    "secondsBeforeUpdatingRate": 1,
+    "minDegreesChangeToNotRaiseAlarm": 10,
+    "alarmRunTimeInSeconds": 300
+
+    
 
 }
