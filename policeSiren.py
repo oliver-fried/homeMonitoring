@@ -16,9 +16,11 @@ from datetime import datetime
 with open('monitoringParameters.json') as f:
     data = json.load(f)
 
+
+
 #setting up GPIO outputs
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(data["alarmPin"], GPIO.OUT)
+GPIO.setup(data["policeSirenPin"], GPIO.OUT)
 
 #initialize the device
 os.system('modprobe w1-gpio')
@@ -28,10 +30,13 @@ os.system('modprobe w1-therm')
 base_dir = '/sys/bus/w1/devices/'
 
 #defining variables from JSON file
-maxTemp = data["maxTempC"]
-maxSlope = data["maxSlopeC"]
+maxTemp = ((data["maxTempF"]- 32)*(0.55555555555555))
 thermSerialNumber = data["furnaceThermometerSerialNumber"]
 secondsBeforeUpdatingRate = data["secondsBeforeUpdatingRate"]
+alarmRunTimeInSeconds = data["alarmRunTimeInSeconds"]
+alarmOffTimeInSeconds = data["alarmOffTimeInSeconds"]
+policeSirenPin = data["policeSirenPin"]
+
 
 #getting the therm file
 thermOneFolder = glob.glob(base_dir + thermSerialNumber)[0]
@@ -63,45 +68,54 @@ def read_thermOnetemp():
 sender_email ='greenridgehomemonitoring@gmail.com'
 rec_email = data['receivingEmail']
 password = '1426Greenridge'
-message = "Plenum is too hot!"
-server = smtplib.SMTP('smtp.gmail.com', 587)
-server.starttls()
-server.login(sender_email, password)
+message = "WARNING! PLENUM IS TOO HOT!"
 
-
+#I have this "try+ accept" code here because I want to try to get email connected, but if no internet, program will still run
+try:
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(sender_email, password)
+except:
+    print "-------------------"
+    print "ERROR: No network connection, email function unavailable"
 
 
 #main function
-def alarmTrigger(lastTemp):
+def alarmTrigger():
+    #set the 
+    GPIO.output(policeSirenPin, 0)
+
     read_thermOnetemp_raw()
     
     #if the therm shows a temp that is too high:
     if read_thermOnetemp() >= maxTemp:
-        #if the slope is too large, its an error and we need to get a new data point
-        if abs((read_thermOnetemp() - lastTemp)/1) >= maxSlope:
-            print("Extraneous temp, disregard")
-            alarmTrigger(lastTemp)
+        try:
+            server.sendmail(sender_email, rec_email, message)
+        except:
+            print "-------------------"
+        print("TOO HOT! (" + str((read_thermOnetemp() * 1.8 +32)) + " F)")
 
-        #otherwise, RING THE ALARM!!!    
-        else:
-            server.sendmail(sender_email,rec_email, message)
-            while True:
-                GPIO.output(data['alarmPin'], 1)
-                print("TOO HOT!")
-
+        while read_thermOnetemp() >= maxTemp:
+            timeEnd = time.time() + alarmRunTimeInSeconds
+            
+            print "Temp is too high (" + str((read_thermOnetemp() * 1.8 +32)) + " F), waiting for it to lower"
+            while time.time() < timeEnd:
+                GPIO.output(policeSirenPin, 1)
+                
+            timeOff = time.time() + alarmOffTimeInSeconds
+            while time.time() < timeOff:
+                GPIO.output(policeSirenPin, 0)
+                print "low"
+        
     #if the temp isnt too high, wait a second and go get a new temp           
     else:
-        GPIO.output(data['alarmPin'], 0)
-        print("Safe Temperature")
-        time.sleep(secondsBeforeUpdatingRate)
-        alarmTrigger(read_thermOnetemp())
-
-
-
-        
+        print("Safe Temperature (" + str((read_thermOnetemp() * 1.8 +32)) + " F)")
 
 #un the main program
-alarmTrigger(23)
+
+while True:
+    alarmTrigger()
+    time.sleep(secondsBeforeUpdatingRate)
 
 #this cleans up after using GPIO pins
 GPIO.cleanup()

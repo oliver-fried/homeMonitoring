@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-#CHANGE THE LOCATION OF JSON ON LINE 15
-#This program rings an alarm if the furnace temp gets too high.
-#Before running, make sure the presets in the 'parameters.json' file are correct
+#CHANGE THE LOCATION OF JSON ON LINE 14
+#This program returns the temp of the furnace. It is used for the website.
+#Before running, make sure the presets in the 'monitoringParameters.json' file are correct
 #June 2020, Oliver Fried, oliverfried3@gmail.com
 
 import os
@@ -11,7 +11,7 @@ import json
 import time
 
 #getting data from JSON file
-with open('monitoringParameters.json') as f:
+with open('/home/pi/src/homeMonitoring/monitoringParameters.json') as f:
     data = json.load(f)
 
 #initialize the device
@@ -22,8 +22,7 @@ os.system('modprobe w1-therm')
 base_dir = '/sys/bus/w1/devices/'
 
 #defining variables from JSON file
-maxTemp = data["maxTempC"]
-maxSlope = data["maxSlopeC"]
+maxTemp = ((data["maxTempF"]- 32)*(0.55555555555555))
 thermSerialNumber = data["furnaceThermometerSerialNumber"]
 
 #getting the therm file
@@ -49,14 +48,7 @@ def read_thermOnetemp():
     if equals_pos != -1:
         temp_string = thermOnelines[1][equals_pos+2:]
         thermOnetemp_c = round(1.8*(float(temp_string) / 1000.0) +32, 2)
-        print(thermOnetemp_c)
+        print thermOnetemp_c
 
 
-def plenumTemp():
-    
-    
-    read_thermOnetemp_raw()
-    read_thermOnetemp()
-        
-
-plenumTemp()
+read_thermOnetemp()
