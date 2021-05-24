@@ -1,0 +1,11 @@
+pi@raspberrypi:~/TechnicalStuff/WorkingAlarmSystemCode/Code $ python policeSiren.py
+  File "policeSiren.py", line 98
+    except:
+          ^
+IndentationError: unindent does not match any outer indentation level
+pi@raspberrypi:~/TechnicalStuff/WorkingAlarmSystemCode/Code $ python policeSiren.py
+  File "policeSiren.py", line 98
+    except:
+          ^
+IndentationError: unindent does not match any outer indentation level
+pi@raspberrypi:~/TechnicalStuff/WorkingAlarmSystemCode/Code $ 
