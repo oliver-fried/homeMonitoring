@@ -31,25 +31,22 @@ policeSirenPin = data["policeSirenPin"]
 #system check
 print bcolors.OKBLUE + "System Check"
 
-if alarmRunTimeInSeconds > 0 and < 1800 and != None:
+if alarmRunTimeInSeconds > 0 and alarmRunTimeInSeconds < 1800 and alarmRunTimeInSeconds != None:
     print bcolors.OKGREEN + "alarmRunTimeInSeconds OK"
 else:
     print bcolors.FAIL + "alarmRunTimeInSeconds Variable ERROR"
 
-if alarmOffTimeInSeconds > 0 and < 1800 and != None:
+if alarmOffTimeInSeconds > 0 and alarmOffTimeInSeconds < 1800 and alarmOffTimeInSeconds != None:
     print bcolors.OKGREEN + "alarmOffTimeInSeconds OK"
 else:
     print bcolors.FAIL + "alarmOffTimeInSeconds Variable ERROR"
 
-if policeSirenPin >=1 and < 50 and != None:
+if policeSirenPin >=1 and policeSirenPin < 50 and policeSirenPin != None:
     print bcolors.OKGREEN + "policeSirenPin OK"
 else:
     print bcolors.FAIL + "policeSirenPin Variable ERROR"
 
-if alarmRunTimeInSeconds > 1 and < 1800 and 1= None:
-    print bcolors.OKGREEN + "alarmRunTimeInSeconds OK"
-else:
-    print bcolors.FAIL + "alarmRunTimeInSeconds Variable ERROR"
+
 
 
 
@@ -62,13 +59,13 @@ elif programStatus != None:
     while True:
         if programStatus != (time.time()-30):
             while programStatus != time.time()-30:
-                 timeEnd = time.time() + alarmRunTimeInSeconds
+                timeEnd = time.time() + alarmRunTimeInSeconds
                 
                 print "policeSiren.py is down!"
-                while time.time() < timeEnd:
-                    GPIO.output(policeSirenPin, 1)
+            while time.time() < timeEnd:
+                GPIO.output(policeSirenPin, 1)
                     
-                timeOff = time.time() + alarmOffTimeInSeconds
-                while time.time() < timeOff:
+            timeOff = time.time() + alarmOffTimeInSeconds
+            while time.time() < timeOff:
                     GPIO.output(policeSirenPin, 0)
                     print "low"
