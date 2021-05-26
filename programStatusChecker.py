@@ -4,10 +4,13 @@
 #Before running, make sure the presets in the 'parameters.json' file are correct
 #May 2021, Oliver Fried, oliverfried3@gmail.com
 f = open("programStatusStorage.txt", "r")
-programStatus = f.read()
+programStatus = float(f.read())
 
 import time
+import json
 import RPi.GPIO as GPIO
+
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -24,6 +27,10 @@ class bcolors:
 #getting data from JSON file
 with open('monitoringParameters.json') as f:
     data = json.load(f)
+    
+#setting up GPIO outputs
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(data["policeSirenPin"], GPIO.OUT)
 
 #getting data
 alarmRunTimeInSeconds = data["alarmRunTimeInSeconds"]
@@ -33,25 +40,22 @@ policeSirenPin = data["policeSirenPin"]
 #system check
 print bcolors.OKBLUE + "System Check"
 
-if alarmRunTimeInSeconds > 0 and < 1800 and != None:
+if alarmRunTimeInSeconds > 0 and alarmRunTimeInSeconds < 1800 and alarmRunTimeInSeconds != None:
     print bcolors.OKGREEN + "alarmRunTimeInSeconds OK"
 else:
     print bcolors.FAIL + "alarmRunTimeInSeconds Variable ERROR"
 
-if alarmOffTimeInSeconds > 0 and < 1800 and != None:
+if alarmOffTimeInSeconds > 0 and alarmOffTimeInSeconds < 1800 and alarmOffTimeInSeconds != None:
     print bcolors.OKGREEN + "alarmOffTimeInSeconds OK"
 else:
     print bcolors.FAIL + "alarmOffTimeInSeconds Variable ERROR"
 
-if policeSirenPin >=1 and < 50 and != None:
-    print bcolors.OKGREEN + "policeSirenPin OK"
+if policeSirenPin >=1 and policeSirenPin < 50 and policeSirenPin != None:
+    print bcolors.OKGREEN + "policeSirenPin OK" +bcolors.ENDC
 else:
-    print bcolors.FAIL + "policeSirenPin Variable ERROR"
+    print bcolors.FAIL + "policeSirenPin Variable ERROR" + bcolors.ENDC
 
-if alarmRunTimeInSeconds > 1 and < 1800 and 1= None:
-    print bcolors.OKGREEN + "alarmRunTimeInSeconds OK"
-else:
-    print bcolors.FAIL + "alarmRunTimeInSeconds Variable ERROR"
+ 
 
 
 
@@ -62,9 +66,12 @@ if programStatus == None:
 
 elif programStatus != None:
     while True:
-        if programStatus != (time.time()-30):
-            while programStatus != time.time()-30:
-                 timeEnd = time.time() + alarmRunTimeInSeconds
+        f = open("programStatusStorage.txt", "r")
+        print(f.read())
+        programStatus = float(f.read())
+        if programStatus < (time.time()-30):
+            while programStatus < time.time()-30:
+                timeEnd = time.time() + alarmRunTimeInSeconds
                 
                 print "policeSiren.py is down!"
                 while time.time() < timeEnd:

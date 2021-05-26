@@ -83,12 +83,14 @@ except:
 def alarmTrigger():
     #set the 
     GPIO.output(policeSirenPin, 0)
+    timeFaulty = []
+    
     try:
         f = open("programStatusStorage.txt", "w")
-        f.write(time.time())
+        f.write(str(time.time()))
         f.close()
     
-        timeFaulty = []
+        
         #if the therm shows a temp that is too high:
         if read_thermOnetemp() >= maxTemp:
             try:
