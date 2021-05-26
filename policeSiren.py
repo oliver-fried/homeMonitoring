@@ -12,6 +12,7 @@ import json
 import smtplib
 from datetime import datetime
 import sys
+import atexit
 
 #getting data from JSON file
 with open('monitoringParameters.json') as f:
@@ -139,4 +140,12 @@ while True:
     time.sleep(secondsBeforeUpdatingRate)
 
 #this cleans up after using GPIO pins
-GPIO.cleanup()
+def exit_handler():
+    GPIO.cleanup()
+    f = open("programStatusStorage.txt", "w")
+    f.write("EXIT")
+    f.close()
+
+
+
+atexit.register(exit_handler())
