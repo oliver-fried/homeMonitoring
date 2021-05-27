@@ -12,7 +12,20 @@ import json
 import smtplib
 from datetime import datetime
 import sys
-import atexit
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    
+print bcolors.FAIL + "**NOTE**: REMEMBER TO START programStatusChecker.py" +bcolors.ENDC
 
 #getting data from JSON file
 with open('monitoringParameters.json') as f:
@@ -88,7 +101,7 @@ def alarmTrigger():
     
     try:
         f = open("programStatusStorage.txt", "w")
-        f.write(str(time.time()))
+        f.write(str(time.time()) + "/" + str(read_thermOnetemp()))
         f.close()
     
         
@@ -114,7 +127,7 @@ def alarmTrigger():
             
         #if the temp isnt too high, wait a second and go get a new temp           
         else:
-            print("Safe Temperature (" + str((read_thermOnetemp() * 1.8 +32)) + " F)")
+            print(bcolors.OKGREEN + "Safe Temperature (" + str((read_thermOnetemp() * 1.8 +32)) + " F)" +bcolors.ENDC)
     except:
         print "ERROR: ISSUE READING TEMP! CHECK SYSTEM"
         timeFaulty.append(1)
@@ -133,19 +146,18 @@ def alarmTrigger():
                 GPIO.output(policeSirenPin, 0)
 
 
-#un the main program
-
-while True:
-    alarmTrigger()
-    time.sleep(secondsBeforeUpdatingRate)
+#run the main program
+try:
+    while True:
+        alarmTrigger()
+        time.sleep(secondsBeforeUpdatingRate)
 
 #this cleans up after using GPIO pins
-def exit_handler():
+except KeyboardInterrupt:
     GPIO.cleanup()
     f = open("programStatusStorage.txt", "w")
     f.write("EXIT")
     f.close()
+    
 
 
-
-atexit.register(exit_handler())

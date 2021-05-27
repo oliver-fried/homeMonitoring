@@ -3,12 +3,12 @@
 #This program checks if policeSiren.py is running.
 #Before running, make sure the presets in the 'parameters.json' file are correct
 #May 2021, Oliver Fried, oliverfried3@gmail.com
-f = open("programStatusStorage.txt", "r")
-programStatus = float(f.read())
+
 
 import time
 import json
 import RPi.GPIO as GPIO
+GPIO.setwarnings(False)
 
 
 
@@ -41,24 +41,31 @@ policeSirenPin = data["policeSirenPin"]
 print bcolors.OKBLUE + "System Check"
 
 if alarmRunTimeInSeconds > 0 and alarmRunTimeInSeconds < 1800 and alarmRunTimeInSeconds != None:
-    print bcolors.OKGREEN + "alarmRunTimeInSeconds OK"
+    print bcolors.OKGREEN + "alarmRunTimeInSeconds   OK"
 else:
     print bcolors.FAIL + "alarmRunTimeInSeconds Variable ERROR"
-
+    exit()
+    
 if alarmOffTimeInSeconds > 0 and alarmOffTimeInSeconds < 1800 and alarmOffTimeInSeconds != None:
-    print bcolors.OKGREEN + "alarmOffTimeInSeconds OK"
+    print bcolors.OKGREEN + "alarmOffTimeInSeconds   OK"
 else:
     print bcolors.FAIL + "alarmOffTimeInSeconds Variable ERROR"
+    exit()
 
 if policeSirenPin >=1 and policeSirenPin < 50 and policeSirenPin != None:
-    print bcolors.OKGREEN + "policeSirenPin OK" +bcolors.ENDC
+    print bcolors.OKGREEN + "policeSirenPin          OK" +bcolors.ENDC
 else:
     print bcolors.FAIL + "policeSirenPin Variable ERROR" + bcolors.ENDC
+    exit()
 
+print "_____________________________________"
+print "           Time(seconds) Temp (C)"
  
 
 
-
+f = open("programStatusStorage.txt", "r")
+programStatus = f.read()
+f.close()
 
 
 if programStatus == None:
@@ -68,20 +75,33 @@ if programStatus == None:
 elif programStatus != None:
     while True:
         f = open("programStatusStorage.txt", "r")
-        print(f.read())
-        if programStatus == "EXIT":
+        data = f.read()
+        f.close()
+        if data == "EXIT":
             print "ERROR: INITIATE policeSiren.py BEFORE RUNNING THIS PROGRAM"
             exit()
         else:
-            programStatus = float(f.read())
-            if programStatus < (time.time()-10):
+            if data == "":
+                time.sleep(1)
+                f = open("programStatusStorage.txt", "r")
+                data=f.read()
+                f.close()
+                if data == "EXIT":
+                    print "ERROR: INITIATE policeSiren.py BEFORE RUNNING THIS PROGRAM"
+                    exit()
+            programStatus = float(data.split("/")[0])
+            lastTemp = float(data.split("/")[1])
+            if programStatus < (time.time()-10) or lastTemp < 0 or lastTemp > 93.3:
                 while programStatus < time.time()-10:
-                    timeEnd = time.time() + alarmRunTimeInSeconds
                     
                     print "policeSiren.py is down!"
-                    while time.time() < timeEnd:
-                        GPIO.output(policeSirenPin, 1)
+                    GPIO.output(policeSirenPin, 1)
                         
-                    timeOff = time.time() + alarmOffTimeInSeconds
-                    while time.time() < timeOff:
-                        GPIO.output(policeSirenPin, 0)
+                    f = open("programStatusStorage.txt", "r")
+                    data=f.read()
+                    f.close()
+                    programStatus = float(data)
+                    
+            else:
+                print bcolors.OKGREEN + "Monitoring (" + str(data) + ")" +bcolors.ENDC
+                time.sleep(1)
