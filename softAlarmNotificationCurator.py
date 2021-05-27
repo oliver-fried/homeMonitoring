@@ -16,5 +16,7 @@ if len(data)>4:
     f.write(mostRecentFour)
     f.close()
     
-
+if len(data) == 0:
+    mostRecentFour = "No recent alarms"
+    
 print mostRecentFour
