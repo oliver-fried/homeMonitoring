@@ -52,72 +52,42 @@ base_dir = '/sys/bus/w1/devices/'
 #########################################################
 #                    outside temp data
 #defining variables from JSON file
-thermSerialNumber = data["outsideThermometerSerialNumber"]
+outsideThermSerialNumber = data["outsideThermometerSerialNumber"]
+insideThermSerialNumber = data["houseThermometerSerialNumber"]
 
-#getting the therm file
-thermOneFolder = glob.glob(base_dir + thermSerialNumber)[0]
-deviceOne_file = thermOneFolder + '/w1_slave'
+#getting the temp from the output
+def read_thermOnetemp(serialNumber):
+    
+    thermOneFolder = glob.glob(base_dir + serialNumber)[0]
+    deviceOne_file = thermOneFolder + '/w1_slave'
 
-#reading in the raw output
-def read_thermOnetemp_raw():
     f=open(deviceOne_file, 'r')
     thermOnelines = f.readlines()
     f.close()
-    return thermOnelines
-
-#getting the temp from the output
-def outsideRead_thermOnetemp():
-    thermOnelines = read_thermOnetemp_raw()
     #once in a while it throws an error. this gets a new temp if error is thrown
     while thermOnelines[0].strip()[-3:] != 'YES':
         time.sleep(0.2)
-        thermOnelines = read_thermOnetemp_raw()
+        f=open(deviceOne_file, 'r')
+        thermOnelines = f.readlines()
+        f.close()
     equals_pos = thermOnelines[1].find('t=')
     #if output looks fine, do this:
     if equals_pos != -1:
         temp_string = thermOnelines[1][equals_pos+2:]
-        outsideThermOnetemp_c = round(1.8*(float(temp_string) / 1000.0) +32, 2)
-        return outsideThermOnetemp_c
+        thermOnetemp_c = round(1.8*(float(temp_string) / 1000.0) +32, 2)
+        return thermOnetemp_c
     
-#################################################################
-    #inside temp data
     
-thermSerialNumber = data["houseThermometerSerialNumber"]
 
-#getting the therm file
-thermOneFolder = glob.glob(base_dir + thermSerialNumber)[0]
-deviceOne_file = thermOneFolder + '/w1_slave'
-
-#reading in the raw output
-def read_thermOnetemp_raw():
-    f=open(deviceOne_file, 'r')
-    thermOnelines = f.readlines()
-    f.close()
-    return thermOnelines
-
-#getting the temp from the output
-def houseRead_thermOnetemp():
-    thermOnelines = read_thermOnetemp_raw()
-    #once in a while it throws an error. this gets a new temp if error is thrown
-    while thermOnelines[0].strip()[-3:] != 'YES':
-        time.sleep(0.2)
-        thermOnelines = read_thermOnetemp_raw()
-    equals_pos = thermOnelines[1].find('t=')
-    #if output looks fine, do this:
-    if equals_pos != -1:
-        temp_string = thermOnelines[1][equals_pos+2:]
-        houseThermOnetemp_c = round(1.8*(float(temp_string) / 1000.0) +32, 2)
-        return houseThermOnetemp_c
 
 
 #this alerts us to whether one should close or open the windows during the summer
 #by comparing inside and outside temperatures
 
 aboveLastIteration = None
-belowLastIteration = None
 while True:
-    houseTemp = houseRead_thermOnetemp()
-    outsideTemp = outsideRead_thermOnetemp()
+    houseTemp = read_thermOnetemp(insideThermSerialNumber)
+    outsideTemp = read_thermOnetemp(outsideThermSerialNumber)
     
     if outsideTemp > houseTemp:
     
@@ -127,43 +97,25 @@ while True:
             f.write("It's warmer outside than inside/")
             f.close()
             print "temp outside is warmer than inside"
-            for x in range(5):
-                
-                timeEnd = time.time() + alarmRunTimeInSeconds
-
-                while time.time() < timeEnd:
-                    GPIO.output(softAlarmPin, 1)
-
-                timeOff = time.time() + alarmOffTimeInSeconds
-
-                while time.time() < timeOff:
-                    GPIO.output(softAlarmPin, 0)
-                    
+            GPIO.output(softAlarmPin, 1)
+            time.sleep(10)
+            GPIO.output(softAlarmPin, 0)
         aboveLastIteration = True
-        belowLastIteration == False
         
     if outsideTemp < houseTemp:
-        if belowLastIteration == False:
+        
+        if aboveLastIteration == True:
     
             f=open("softAlarmNotificationTracker.txt", "a")
             f.write("It's cooler outside than inside/")
             f.close()
             print "temp outside is cooler than inside"
-            for x in range(5):
-                
-                timeEnd = time.time() + alarmRunTimeInSeconds
-
-                while time.time() < timeEnd:
-                    GPIO.output(softAlarmPin, 1)
-
-                timeOff = time.time() + alarmOffTimeInSeconds
-
-                while time.time() < timeOff:
-                    GPIO.output(softAlarmPin, 0)
+            GPIO.output(softAlarmPin, 1)
+            time.sleep(10)
+            GPIO.output(softAlarmPin, 0)
                     
-        belowLastIteration = True
-        aboveLastIteration == False
-    print bcolors.OKGREEN + "Monitoring (" + str(time.time()) + ")" + bcolors.ENDC 
+        aboveLastIteration = False
+    print bcolors.OKGREEN + "outsideDataMonitor.py:  Monitoring (In: " + str(houseTemp) +"/Out: "+ str(outsideTemp) + "above last iteration? " + str(aboveLastIteration) + ")" + bcolors.ENDC 
     time.sleep(1)
         
         
