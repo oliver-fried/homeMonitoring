@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #CHANGE THE LOCATION OF JSON ON LINE 14
-#This program returns the temp of the house. It is used for the website.
+#This program returns the temp of the outside. It is used for the website.
 #Before running, make sure the presets in the 'monitoringParameters.json' file are correct
 #June 2020, Oliver Fried, oliverfried3@gmail.com
 
@@ -23,7 +23,7 @@ base_dir = '/sys/bus/w1/devices/'
 
 #defining variables from JSON file
 maxTemp = ((data["maxTempF"]- 32)*(0.55555555555555))
-thermSerialNumber = data["houseThermometerSerialNumber"]
+thermSerialNumber = data["outsideThermometerSerialNumber"]
 
 #getting the therm file
 thermOneFolder = glob.glob(base_dir + thermSerialNumber)[0]
@@ -52,3 +52,4 @@ def read_thermOnetemp():
 
 
 read_thermOnetemp()
+

@@ -32,10 +32,13 @@ else if (shell_exec(escapeshellcmd('python '.$pythonScriptLocations.'airIntakeSt
 
 
 $errors = exec('python '.$pythonScriptLocations.'airIntakeStatus.py 2>&1', $output);
-echo $errors;
-$houseTemp = shell_exec(escapeshellcmd('python '.$pythonScriptLocations.'houseTemp.py'));
+#echo $errors;
 
+$houseTemp = shell_exec(escapeshellcmd('python '.$pythonScriptLocations.'houseTemp.py'));
 $plenumTemp = shell_exec(escapeshellcmd('python '.$pythonScriptLocations.'plenumTemp.py'));
+$outsideTemp = shell_exec(escapeshellcmd('python '.$pythonScriptLocations.'outsideTemp.py'));
+
+$softAlarmNotifications = shell_exec(escapeshellcmd('python '.$pythonScriptLocations.'softAlarmNotificationCurator.py'));
 
 $garageStatus = "not working";
 $frontDoorStatus = 'not working';
@@ -46,21 +49,16 @@ $frontDoorStatus = 'not working';
 ?>
 <div class="mr-4 ml-4">
 <div class="card-columns">
-  <div class="card text-white bg-dark mb-3 mt-4">
+  <div class="card text-white bg-dark mb-2 mt-4">
   <div class="card-header">Current Time</div>
     <div class="card-body">
   
-      <h3 class="card-title">
+      <h4 class="card-title">
       <?php
           echo date("h:ia");
       ?> 
-      </h3>
-      <p class="card-text">
-      <?php
-        $mydate=getdate(date("U"));
-        echo "$mydate[month] $mydate[mday], $mydate[year]";
-      ?>
-      </p>
+      </h4>
+      
     </div>
   </div>
 
@@ -81,26 +79,40 @@ $frontDoorStatus = 'not working';
         ?>
       </h1>
       <p class="card-text">House Temperature</p>
+      <h1 class="card-title text-success">
+      <?php
+        echo $outsideTemp;
+        echo " F";
+        ?>
+      </h1>
+      <p class="card-text">Outside Temperature</p>
 
     </div>
   </div>
 
-  <div class="card text-white bg-dark mb-3 mt-4">
+  <div class="card text-white bg-dark mb-3 mt-2">
   <div class="card-header">Air Intake Status</div>
     <div class="card-body">
       <h3 class="card-title"><?php echo $airIntakeStatus ?></h3>
       <p class="card-text">
-      <form name="controlAirIntake" method="get" >
-        <Button name = "controlAirIntake" type="submit" class="btn btn-primary btn-lg btn-block">Toggle Air Intake Position (Not functional)</Button>
-      </form>
-      <?php
-      if (isset($_GET['controlAirIntake']))
-      {
-        shell_exec(escapeshellcmd('python3 '.$pythonScriptLocations.'airIntakeControl.py'));
-      }
-      ?>
-      </p>
+      <!-- <form name="controlAirIntake" method="get" >
+      #<Button name = "controlAirIntake" type="submit" class="btn btn-primary btn-lg btn-block">Toggle Air Intake Position (Not functional)</Button>
+      #</form>
+      #<?php
+      #if (isset($_GET['controlAirIntake']))
+      #{
+      #}
+      #?>
+      #</p> -->
     </div>
+  </div>
+  
+  <div class="card text-white bg-dark mb-3 mt-2">
+  <div class="card-header">Soft Alarm Notifications</div>
+    <div class="card-body">
+      <h3 class="card-title"><?php echo $softAlarmNotifications ?></h3>
+      <p class="card-text">
+      </div>
   </div>
 
   <div class="card text-white bg-dark mt-x mb-3">

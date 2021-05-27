@@ -5,7 +5,11 @@ import RPi.GPIO as GPIO
 import json
 import smtplib
 
-#  | OLIVER FRIED JAN 2021 | OLIVERFRIED3@GMAIL.COM |
+#  | OLIVER FRIED MAY 2021 | OLIVERFRIED3@GMAIL.COM |
+
+# this program detects if the furnace air has been opened or closed
+# recently, and if so, if the furnace is cooling or heating as expected.
+# If it is not, it sounds the soft alarm and sends an email.
 
 #getting data from JSON file
 with open('monitoringParameters.json') as f:
@@ -95,6 +99,9 @@ def timeAlarms():
             #checking to see if the temp has not decreased since closing the air 
             if temp >= originalTemp:
                 print("Furnace is not cooling down!")
+                f=open("softAlarmNotificationTracker.txt", "a")
+                f.write("furnace air is closed, but furnace temp is not decreasing/")
+                f.close()
 
                 #I use this try except code here to try to send an email, but if not internet, then just skip over it with not issues
                 try:
@@ -152,6 +159,9 @@ def timeAlarms():
 
             if currentTemp <= startingTemp:
                 print "Furnace is not warming up!"
+                f=open("softAlarmNotificationTracker.txt", "a")
+                f.write("furnace air is open, but furnace temp is not increasing/")
+                f.close()
 
                 try:
                     server.sendmail(sender_email, rec_email, "Attention! Plenum is not warming up. Fire has most likely died.")
