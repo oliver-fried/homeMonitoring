@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
-try:
-    f=open("softAlarmNotificationTracker.txt", "r")
-    data = f.read()
-    f.close()
-except:
-    print "ERROR: can't access softAlarmNotificationTracker text file!"
+
+f=open("/home/pi/TechnicalStuff/WorkingAlarmSystemCode/Code/softAlarmNotificationTracker.txt", "r")
+data = f.read()
+f.close()
+
 
 data.split("/")
 mostRecentFour = data[-4:]
