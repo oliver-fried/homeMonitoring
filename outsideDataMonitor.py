@@ -100,6 +100,9 @@ while True:
             GPIO.output(softAlarmPin, 1)
             time.sleep(10)
             GPIO.output(softAlarmPin, 0)
+            print "waiting a half hour to continue..."
+
+            time.sleep(1800)
         aboveLastIteration = True
         
     if outsideTemp < houseTemp:
@@ -113,7 +116,8 @@ while True:
             GPIO.output(softAlarmPin, 1)
             time.sleep(10)
             GPIO.output(softAlarmPin, 0)
-                    
+            print "waiting a half hour to continue..."
+            time.sleep(1800)
         aboveLastIteration = False
     print bcolors.OKGREEN + "outsideDataMonitor.py:  Monitoring (In: " + str(houseTemp) +"/Out: "+ str(outsideTemp) + "above last iteration? " + str(aboveLastIteration) + ")" + bcolors.ENDC 
     time.sleep(1)
