@@ -10,11 +10,24 @@ import os
 import glob
 import json
 import time
-from houseTemp.py import read_thermOnetemp() as houseTemp()
+import RPi.GPIO as GPIO
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 
 
 #getting data from JSON file
-with open('/home/pi/TechnicalStuff/WorkingAlarmSystemCode/Code') as f:
+with open('monitoringParameters.json') as f:
     data = json.load(f)
     
     
@@ -35,8 +48,10 @@ os.system('modprobe w1-therm')
 #setup therm location
 base_dir = '/sys/bus/w1/devices/'
 
+
+#########################################################
+#                    outside temp data
 #defining variables from JSON file
-maxTemp = ((data["maxTempF"]- 32)*(0.55555555555555))
 thermSerialNumber = data["outsideThermometerSerialNumber"]
 
 #getting the therm file
@@ -51,7 +66,7 @@ def read_thermOnetemp_raw():
     return thermOnelines
 
 #getting the temp from the output
-def read_thermOnetemp():
+def outsideRead_thermOnetemp():
     thermOnelines = read_thermOnetemp_raw()
     #once in a while it throws an error. this gets a new temp if error is thrown
     while thermOnelines[0].strip()[-3:] != 'YES':
@@ -61,17 +76,50 @@ def read_thermOnetemp():
     #if output looks fine, do this:
     if equals_pos != -1:
         temp_string = thermOnelines[1][equals_pos+2:]
-        thermOnetemp_c = round(1.8*(float(temp_string) / 1000.0) +32, 2)
-        return thermOnetemp_c
+        outsideThermOnetemp_c = round(1.8*(float(temp_string) / 1000.0) +32, 2)
+        return outsideThermOnetemp_c
+    
+#################################################################
+    #inside temp data
+    
+thermSerialNumber = data["houseThermometerSerialNumber"]
+
+#getting the therm file
+thermOneFolder = glob.glob(base_dir + thermSerialNumber)[0]
+deviceOne_file = thermOneFolder + '/w1_slave'
+
+#reading in the raw output
+def read_thermOnetemp_raw():
+    f=open(deviceOne_file, 'r')
+    thermOnelines = f.readlines()
+    f.close()
+    return thermOnelines
+
+#getting the temp from the output
+def houseRead_thermOnetemp():
+    thermOnelines = read_thermOnetemp_raw()
+    #once in a while it throws an error. this gets a new temp if error is thrown
+    while thermOnelines[0].strip()[-3:] != 'YES':
+        time.sleep(0.2)
+        thermOnelines = read_thermOnetemp_raw()
+    equals_pos = thermOnelines[1].find('t=')
+    #if output looks fine, do this:
+    if equals_pos != -1:
+        temp_string = thermOnelines[1][equals_pos+2:]
+        houseThermOnetemp_c = round(1.8*(float(temp_string) / 1000.0) +32, 2)
+        return houseThermOnetemp_c
 
 
 #this alerts us to whether one should close or open the windows during the summer
-    #by comparing inside and outside temperatures
+#by comparing inside and outside temperatures
 
 aboveLastIteration = None
 belowLastIteration = None
 while True:
-    if thermOnetemp_c() > houseTemp()
+    houseTemp = houseRead_thermOnetemp()
+    outsideTemp = outsideRead_thermOnetemp()
+    
+    if outsideTemp > houseTemp:
     
         if aboveLastIteration == False:
         
@@ -94,7 +142,7 @@ while True:
         aboveLastIteration = True
         belowLastIteration == False
         
-    if thermOnetemp_c() < houseTemp():
+    if outsideTemp < houseTemp:
         if belowLastIteration == False:
     
             f=open("softAlarmNotificationTracker.txt", "a")
@@ -115,6 +163,7 @@ while True:
                     
         belowLastIteration = True
         aboveLastIteration == False
+    print bcolors.OKGREEN + "Monitoring (" + str(time.time()) + ")" + bcolors.ENDC 
     time.sleep(1)
         
         
