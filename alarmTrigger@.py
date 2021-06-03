@@ -95,7 +95,6 @@ def alarmTrigger():
         GPIO.output(data["alarmPin"], 0)
         while read_thermOnetemp() >= maxTemp:
             time.sleep(1)
-	    print read_thermOnetemp()*1.8 + 32	
             print "waiting for temperature to lower below threshold"
             
 

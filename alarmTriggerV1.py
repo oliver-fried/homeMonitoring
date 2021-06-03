@@ -28,7 +28,7 @@ os.system('modprobe w1-therm')
 base_dir = '/sys/bus/w1/devices/'
 
 #defining variables from JSON file
-maxTemp = ((data["maxTempF"]- 32)*(0.55555555555555))
+maxTemp = data["maxTempC"]
 maxSlope = data["maxSlopeC"]
 thermSerialNumber = data["furnaceThermometerSerialNumber"]
 secondsBeforeUpdatingRate = data["secondsBeforeUpdatingRate"]
@@ -63,7 +63,7 @@ def read_thermOnetemp():
 sender_email ='greenridgehomemonitoring@gmail.com'
 rec_email = data['receivingEmail']
 password = '1426Greenridge'
-message = "WARNING! PLENUM IS TOO HOT!"
+message = "Plenum is too hot!"
 server = smtplib.SMTP('smtp.gmail.com', 587)
 server.starttls()
 server.login(sender_email, password)
@@ -72,46 +72,36 @@ server.login(sender_email, password)
 
 
 #main function
-def alarmTrigger():
-    GPIO.output(data['alarmPin'], 0)
-
+def alarmTrigger(lastTemp):
     read_thermOnetemp_raw()
     
     #if the therm shows a temp that is too high:
     if read_thermOnetemp() >= maxTemp:
         #if the slope is too large, its an error and we need to get a new data point
-        '''if abs((read_thermOnetemp() - lastTemp)/1) >= maxSlope:
+        if abs((read_thermOnetemp() - lastTemp)/1) >= maxSlope:
             print("Extraneous temp, disregard")
             alarmTrigger(lastTemp)
 
         #otherwise, RING THE ALARM!!!    
-        else:'''
-
-        server.sendmail(sender_email, rec_email, message)
-        print("TOO HOT!")
-        timeEnd = time.time() + data["alarmRunTimeInSeconds"]
-        while time.time() < timeEnd:
-            GPIO.output(data['alarmPin'], 1)
-        GPIO.output(data["alarmPin"], 0)
-        while read_thermOnetemp() >= maxTemp:
-            time.sleep(1)
-	    print read_thermOnetemp()*1.8 + 32	
-            print "waiting for temperature to lower below threshold"
-            
+        else:
+            server.sendmail(sender_email,rec_email, message)
+            while True:
+                GPIO.output(data['alarmPin'], 1)
+                print("TOO HOT!")
 
     #if the temp isnt too high, wait a second and go get a new temp           
     else:
+        GPIO.output(data['alarmPin'], 0)
         print("Safe Temperature")
+        time.sleep(secondsBeforeUpdatingRate)
+        alarmTrigger(read_thermOnetemp())
 
 
 
         
 
 #un the main program
-
-while True:
-    alarmTrigger()
-    time.sleep(secondsBeforeUpdatingRate)
+alarmTrigger(23)
 
 #this cleans up after using GPIO pins
 GPIO.cleanup()

@@ -68,9 +68,7 @@ def read_thermOnetemp():
     #once in a while it throws an error. this gets a new temp if error is thrown
     while thermOnelines[0].strip()[-3:] != 'YES':
         time.sleep(0.2)
-        f=open(deviceOne_file, 'r')
-        thermOnelines = f.readlines()
-        f.close()
+        thermOnelines = read_thermOnetemp_raw()
     equals_pos = thermOnelines[1].find('t=')
     #if output looks fine, do this:
     if equals_pos != -1:
@@ -129,7 +127,7 @@ def alarmTrigger():
             
         #if the temp isnt too high, wait a second and go get a new temp           
         else:
-            print(bcolors.OKGREEN + "policeSiren.py:  Safe Temperature (" + str((read_thermOnetemp() * 1.8 +32)) + " F)" +bcolors.ENDC)
+            print(bcolors.OKGREEN + "Safe Temperature (" + str((read_thermOnetemp() * 1.8 +32)) + " F)" +bcolors.ENDC)
     except:
         print "ERROR: ISSUE READING TEMP! CHECK SYSTEM"
         timeFaulty.append(1)
